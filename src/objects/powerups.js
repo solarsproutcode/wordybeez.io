@@ -1,4 +1,5 @@
 import { colorPallete } from "../config";
+import { addIdleAnim, setBobbing, addHighlight, addTextBox } from "../helpers";
 const powerups = {
     stick: {
         x: 30,
@@ -67,6 +68,7 @@ const powerups = {
         }
     },
 }
+const selectText = "Choose a powerup to begin"
 let dailyPotAvailable = false;
 fetch("/api/powerup")
     .then((res) => res.json())
@@ -74,112 +76,65 @@ fetch("/api/powerup")
         dailyPotAvailable = dailyPot;
     });
 
-export function addPowerups(k) {
+export function addPowerups(k, { onSelect = () => {}, sceneTransition = () => false } = {}) {
     const dailyPowerups = {
-        stick: k.randi(1, 5), 
-        flower: k.randi(1, 5), 
+        stick: k.randi(1, 5),
+        flower: k.randi(1, 5),
         jar: dailyPotAvailable ? k.randi(1, 5) : k.randi(1, 3)
     }
     let selectedItem = null;
-
+    const addSelectPrompt = () => addTextBox(k, selectText, 220, colorPallete.red, colorPallete.white, { width: 100 });
+    addSelectPrompt();
     for (const [i, [name, val]] of Object.entries(powerups).entries()) {
         if (!k.getSprite(name)) {
             continue
         }
         const item = k.add([
             k.sprite(name),
-            k.pos(val.x, 120),
+            k.pos(val.x, 110),
             k.anchor("center"),
             k.area(),
             k.rotate(0),
             k.timer(),
-            k.z(1), // keep powerups above their selection highlight
-            name
+            k.z(1), // keep powerups on top of the highlight
+            name,
+            "powerup"
         ]);
-        addIdleAnim(k, item, i);
+        addIdleAnim(k, item, i); 
         k.onClick(name, () => {
+            if (sceneTransition()) return;
             const text = val.choices[dailyPowerups[name]]
             k.destroyAll("selected");
+            let startScale = 0
             // previous selected powerup needs to go back to bob
             if (selectedItem && selectedItem !== item) {
                 setBobbing(k, selectedItem, true);
+                startScale = 1
             }
             // this powerup needs to stop bobbing
             setBobbing(k, item, false);
             selectedItem = item;
             addHighlight(k, item);
-            const title = addTextBox(k, text.title, 200, colorPallete.lightYellow, colorPallete.darkBrown, { size: 16 });
+            const title = addTextBox(k, text.title, 180, colorPallete.lightYellow, colorPallete.darkBrown, { size: 16 });
             // wrap description text
             const description = addTextBox(k, text.description, 0, colorPallete.lightYellow, colorPallete.darkBrown, { width: 100 })
             // description is always 4 pixels below title
             description.pos.y = title.pos.y + (title.height / 2) + (description.height / 2) + 4
+            onSelect(startScale);
         })
     }
-}
 
-// i = the item's index
-function addIdleAnim(k, item, i) {
-    item.baseY = item.pos.y;
-    item.bobAmount = 1;
-
-    // float 1.5 pixels up and down
-    // item is offset by i for randomness
-    item.onUpdate(() => {
-        item.pos.y = item.baseY + Math.sin(k.time() * 2.5 + i * 2) * 1.5 * item.bobAmount;
+    // clicking anywhere that isn't a powerup clears the selection
+    k.onMousePress(() => {
+        if (!selectedItem || sceneTransition()) return;
+        // was any powerup clicked
+        const clickedPowerup = k.get("powerup").some((p) => p.isHovering());
+        const clickedStart = k.get("startGame").some((p) => p.isHovering());
+        if (clickedPowerup || clickedStart) return;
+        k.destroyAll("selected");
+        setBobbing(k, selectedItem, true);
+        selectedItem = null;
+        addSelectPrompt();
     });
-}
 
-// changes to either 0 or 1, easing in between
-function setBobbing(k, item, on) {
-    item.bobTween?.cancel();
-    item.bobTween = item.tween(item.bobAmount, on ? 1 : 0, 0.15,
-        (v) => item.bobAmount = v, k.easings.easeOutQuad); // easeOutQuad quick first then slow
-}
-
-function addHighlight(k, item) {
-    const padding = 4;
-    const highlight = k.add([
-        k.rect(item.width + padding * 2, item.height + padding * 2, { radius: 4 }),
-        k.pos(item.pos.x, item.baseY),
-        k.anchor("center"),
-        k.color(colorPallete.lightYellow),
-        k.outline(2, k.Color.fromHex(colorPallete.hazel)),
-        k.opacity(1),
-        k.scale(0),
-        k.z(0), // draw layer behind text
-        k.timer(),
-        "selected"
-    ]);
-    // Pop in
-    highlight.tween(0, 1, 0.2, (s) => highlight.scale = k.vec2(s), k.easings.easeOutBack);
-    highlight.opacity = 0.75
-    return highlight;
-}
-
-function addTextBox(k, text, y, color1, color2, options = {}) {
-    const box = k.add([
-        k.rect(0, 0, { radius: 2 }),
-        k.pos(k.width()/2, y),
-        k.anchor("center"),
-        k.color(color1),
-        k.scale(0), // start invisible
-        k.timer(),
-        "selected"
-    ]);
-    const label = box.add([
-        k.text(text, { 
-            size: 12,
-            font: "yoster",
-            align: "center",
-            ... options // concat with options
-        }),
-        k.anchor("center"),
-        k.color(color2),
-    ]);
-    box.width = label.width + 8;
-    box.height = label.height + 4;
-
-    // Pops in, overshooting with easeOutBack
-    box.tween(0, 1, 0.25, (s) => box.scale = k.vec2(s), k.easings.easeOutBack);
-    return box;
 }
