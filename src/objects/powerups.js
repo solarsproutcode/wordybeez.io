@@ -94,13 +94,39 @@ export function addPowerups(k) {
         k.onClick(name, () => {
             const text = val.choices[dailyPowerups[name]]
             k.destroyAll("selected");
-            k.add([
-                k.text(text.title, { size: 12, font: "yoster" }),
-                k.pos(k.width()/2, 200),
-                k.anchor("center"),
-                k.color(colorPallete.darkBrown),
-                "selected"
-            ]);
+            const title = addTextBox(k, text.title, 200, { size: 16 });
+            // wrap description text
+            const description = addTextBox(k, text.description, 0, { width: 100 })
+            // description is always 4 pixels below title
+            description.pos.y = title.pos.y + (title.height / 2) + (description.height / 2) + 4
         })
     }
+}
+
+function addTextBox(k, text, y, options = {}) {
+    const box = k.add([
+        k.rect(0, 0, { radius: 2 }),
+        k.pos(k.width()/2, y),
+        k.anchor("center"),
+        k.color(colorPallete.lightYellow),
+        k.scale(0), // start invisible
+        k.timer(),
+        "selected"
+    ]);
+    const label = box.add([
+        k.text(text, { 
+            size: 12, // = yoster's native size (loadFont size), so pixels draw 1:1
+            font: "yoster",
+            align: "center",
+            ... options // concat with options
+        }),
+        k.anchor("center"),
+        k.color(colorPallete.darkBrown),
+    ]);
+    box.width = label.width + 8;
+    box.height = label.height + 4;
+
+    // Pops in, overshooting with easeOutBack
+    box.tween(0, 1, 0.25, (s) => box.scale = k.vec2(s), k.easings.easeOutBack);
+    return box;
 }

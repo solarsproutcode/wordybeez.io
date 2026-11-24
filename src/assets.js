@@ -21,9 +21,8 @@ export function loadAssets(k) {
     }
 
     // Load font
-    // 04B_30 rendered at its native size (17pt) with no antialiasing: 16x16 cells, ASCII 32-126
     k.loadBitmapFont("04b30", "fonts/04b30.png", 16, 16)
-    k.loadBitmapFont("yoster", "fonts/yoster.png", 10, 12)
+    k.loadFont("yoster", "fonts/yoster-island.regular.ttf", { size: 12, filter: "nearest" })
 
     // Load sfx and music
 }

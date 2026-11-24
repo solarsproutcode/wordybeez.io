@@ -6,7 +6,7 @@
     html, body {
         margin: 0;
         height: 100%;
-        /* overflow: hidden; */
+        overflow: hidden; /* remove scrollbar */
         background: #a1c5c9; /* blue */
     }
     /* crt filter applied on frame */
@@ -16,7 +16,7 @@
         align-items: center;
         height: 100%;
     }
-    /* Game is 180x320: as tall as fits, without overflowing the width */
+    /* set height tall as window, or shrink to fit for tall mobile */
     #game, .border {
         height: min(100vh, 100vw * 320 / 180);
     }
@@ -27,7 +27,7 @@
         display: none;
         aspect-ratio: 12 / 320;
     }
-    /* Desktop with room for both borders (180 + 12 + 12 = 204 wide) */
+    /* Desktop with room for both borders is shown (180 + 12 + 12 = 204 wide) */
     @media (pointer: fine) and (min-aspect-ratio: 204/320) {
         .border {
             display: block;
