@@ -2,8 +2,45 @@
 <html>
 <head>
 <title>wordybeez.io</title>
+<style>
+    html, body {
+        margin: 0;
+        height: 100%;
+        /* overflow: hidden; */
+        background: #a1c5c9; /* blue */
+    }
+    /* crt filter applied on frame */
+    #frame {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100%;
+    }
+    /* Game is 180x320: as tall as fits, without overflowing the width */
+    #game, .border {
+        height: min(100vh, 100vw * 320 / 180);
+    }
+    #game {
+        aspect-ratio: 180 / 320;
+    }
+    .border {
+        display: none;
+        aspect-ratio: 12 / 320;
+    }
+    /* Desktop with room for both borders (180 + 12 + 12 = 204 wide) */
+    @media (pointer: fine) and (min-aspect-ratio: 204/320) {
+        .border {
+            display: block;
+        }
+    }
+</style>
 </head>
-<body style="overflow:hidden">
+<body>
+<div id="frame">
+    <canvas class="border" data-src="sprites/border1.png"></canvas>
+    <div id="game"></div>
+    <canvas class="border" data-src="sprites/border2.png"></canvas>
+</div>
 <script src="src/main.js" type="module"></script>
 </body>
 </html>

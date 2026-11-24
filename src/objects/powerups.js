@@ -2,7 +2,6 @@ import { colorPallete } from "../config";
 const powerups = {
     stick: {
         x: 30,
-        y: 150,
         choices: {
             1: {
                 title: "Stir the Pot",
@@ -25,7 +24,6 @@ const powerups = {
     },
     flower: {
         x: 90,
-        y: 150,
         choices: {
             1: {
                 title: "Full Bloom",
@@ -47,7 +45,6 @@ const powerups = {
     },
     jar: {
         x: 155,
-        y: 150,
         choices: {
             1: {
                 title: "Pot of Gold",
@@ -89,7 +86,7 @@ export function addPowerups(k) {
         }
         k.add([
             k.sprite(name),
-            k.pos(val.x, val.y),
+            k.pos(val.x, 120),
             k.anchor("center"),
             k.area(),
             name
@@ -99,7 +96,7 @@ export function addPowerups(k) {
             k.destroyAll("selected");
             k.add([
                 k.text(text.title, { size: 12, font: "yoster" }),
-                k.pos(k.width()/2, 100),
+                k.pos(k.width()/2, 200),
                 k.anchor("center"),
                 k.color(colorPallete.darkBrown),
                 "selected"

@@ -4,6 +4,15 @@ import { addPowerups } from "../objects/powerups"
 export function title(k) {
     return k.scene("title", () => {
         k.add([
+            k.sprite("background"),
+            k.pos(0, 0),
+        ]);
+        k.add([
+            k.sprite("picnic"),
+            k.pos(k.width()/2, 240),
+            k.anchor("center"),
+        ]);
+        k.add([
             k.sprite("hive_header"),
             k.pos(0, 35),
             k.anchor("left"),
