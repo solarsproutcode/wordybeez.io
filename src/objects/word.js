@@ -1,6 +1,6 @@
 import { colorPallete } from "../config";
 import { addLetter, POP_GROW_TIME } from "./hexagons";
-import { addTextBox } from "../helpers";
+import { addDeliverButton } from "./deliver";
 
 const WORD_Y = 120;
 const WORD_MARGIN = 4; // space kept free at each screen edge
@@ -54,21 +54,8 @@ async function checkWord(k) {
         k.destroyAll("deliver");
     } else if (k.get("deliver").length === 0) {
         // only pop in if it isn't already showing from the last word
-        addDeliverButton(k);
+        addDeliverButton(k, wordHexes);
     }
-}
-
-function addDeliverButton(k) {
-    const deliver = addTextBox(k, "Deliver to Queen", 70, colorPallete.red, colorPallete.white, { size: 16 }, [
-        k.area(),
-        k.outline(2, k.Color.fromHex(colorPallete.white)),
-        "deliver"
-    ])
-    deliver.onClick(() => {
-        deliver.tween(k.vec2(1.2, 0.8), k.vec2(1), 0.3, (s) => deliver.scale = s, k.easings.easeOutElastic);
-        // tally score / animate bees / change to next level 
-    });
-    return deliver
 }
 
 // moves every letter to its spot, newHex pops in, the rest slide

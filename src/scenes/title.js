@@ -30,10 +30,6 @@ function addStartButton(k, startScale, onStart) {
         k.outline(2, k.Color.fromHex(colorPallete.white)),
         "startGame"
     ], startScale)
-    startGame.onUpdate(() => {
-        if (startGame.isHovering()) return;
-        startGame.scale = k.vec2(k.wave(0.95, 1.05, k.time() * 2));
-    });
     startGame.onClick(() => {
         startGame.tween(k.vec2(1.2, 0.8), k.vec2(1), 0.3, (s) => startGame.scale = s, k.easings.easeOutElastic);
         startGame.wait(0.3, onStart);

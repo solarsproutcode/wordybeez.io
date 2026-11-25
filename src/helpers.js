@@ -38,11 +38,15 @@ export function addHighlight(k, item) {
     return highlight;
 }
 
+// flies the bee to target over `time` seconds, then calls onDone. the bee needs k.timer()
+export function flyBee(k, bee, target, time, onDone = () => {}) {
+    bee.tween(bee.pos, target, time, (p) => bee.pos = p, k.easings.easeInOutSine).onEnd(onDone);
+}
 
-export function addTextBox(k, text, y, color1, color2, textOptions = {}, extraComps = [], startScale = 0) {
+export function addTextBox(k, text, y, color1, color2, textOptions = {}, extraComps = [], startScale = 0, x = k.width() / 2) {
     const box = k.add([
         k.rect(0, 0, { radius: 2 }),
-        k.pos(k.width() / 2, y),
+        k.pos(x, y),
         k.anchor("center"),
         k.color(color1),
         k.scale(startScale),

@@ -2,6 +2,7 @@ import { colorPallete } from "../config";
 import { addTextBox } from "../helpers";
 import { addInitHoneycomb } from "../objects/hexagons";
 import { removeLastLetter } from "../objects/word";
+import { addScore } from "../objects/score";
 
 export function game(k) {
     return k.scene("game", () => {
@@ -9,6 +10,7 @@ export function game(k) {
         k.onLoad(() => {
             addInitHoneycomb(k, k.vec2(k.width() / 2, 220));
             addOopsButton(k);
+            addScore(k);
         });
     })
 }

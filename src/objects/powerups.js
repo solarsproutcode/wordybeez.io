@@ -102,6 +102,7 @@ export function addPowerups(k, { onSelect = () => {}, sceneTransition = () => fa
         addIdleAnim(k, item, i); 
         k.onClick(name, () => {
             if (sceneTransition()) return;
+            if (selectedItem === item) return; // already selected
             const text = val.choices[dailyPowerups[name]]
             k.destroyAll("selected");
             let startScale = 0
@@ -122,18 +123,5 @@ export function addPowerups(k, { onSelect = () => {}, sceneTransition = () => fa
             onSelect(startScale);
         })
     }
-
-    // clicking anywhere that isn't a powerup clears the selection
-    k.onMousePress(() => {
-        if (!selectedItem || sceneTransition()) return;
-        // was any powerup clicked
-        const clickedPowerup = k.get("powerup").some((p) => p.isHovering());
-        const clickedStart = k.get("startGame").some((p) => p.isHovering());
-        if (clickedPowerup || clickedStart) return;
-        k.destroyAll("selected");
-        setBobbing(k, selectedItem, true);
-        selectedItem = null;
-        addSelectPrompt();
-    });
 
 }

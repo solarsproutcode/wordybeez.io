@@ -1,4 +1,5 @@
 import { colorPallete } from "../config";
+import { flyBee } from "../helpers";
 
 export function addBackground(k) {
     k.destroyAll("background");
@@ -26,31 +27,36 @@ export function addBackground(k) {
     addBee(k)
 }
 
+// each stop on the bee's path: where it flies to, and how long that hop takes
+const BEE_START = [-6, 60];
+const BEE_PATH = [
+    { x: 50, y: 60, time: 1.6 },
+    { x: 40, y: 35, time: 0.8 },
+    { x: 80, y: 45, time: 0.8 },
+    { x: 200, y: 70, time: 0.8 },
+];
+
 function addBee(k) {
     const b = k.add([
         k.sprite("bee", { anim: "fly" }),
-        k.pos(-6, 60),
+        k.pos(...BEE_START),
         k.anchor("center"),
-        k.animate(),
+        k.timer(), // for flyBee
         k.stay(),
         "background"
     ]);
-    b.onUpdate(() => {
-        if (k.getSceneName() !== "title" && b.pos.x >= 199) {
-            b.destroy();
-            return;
-        }
-    });
-    b.animate("pos", [
-        k.vec2(-6, 60),
-        k.vec2(50, 60),
-        k.vec2(40, 35),
-        k.vec2(80, 45),
-        k.vec2(200, 70)
-    ], {
-        duration: 4,
-        timing: [0, 0.4, 0.6, 0.8, 1],
-        easing: k.easings.easeInOutSine,
-    });
+    flyBeePath(k, b, 0);
     return b
+}
+
+// flies hop i of the path, then the next. loops while on the title screen
+function flyBeePath(k, b, i) {
+    if (i === BEE_PATH.length) {
+        // finished the path (off the right edge): once we've left the title, the bee is done
+        if (k.getSceneName() !== "title") return b.destroy();
+        b.pos = k.vec2(...BEE_START);
+        i = 0;
+    }
+    const { x, y, time } = BEE_PATH[i];
+    flyBee(k, b, k.vec2(x, y), time, () => flyBeePath(k, b, i + 1));
 }
