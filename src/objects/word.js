@@ -1,5 +1,6 @@
 import { colorPallete } from "../config";
 import { addLetter, POP_GROW_TIME } from "./hexagons";
+import { addTextBox } from "../helpers";
 
 const WORD_Y = 120;
 const WORD_MARGIN = 4; // space kept free at each screen edge
@@ -19,6 +20,7 @@ export function addToWord(k, sourceHex) {
     addLetter(k, newHex, letter, colorPallete.darkBrown);
     wordHexes.push(newHex);
     arrangeWord(k, newHex);
+    checkWord(k);
 }
 
 // removes the last letter, lets honeycomb tile be clicked again
@@ -32,6 +34,41 @@ export function removeLastLetter(k) {
     k.tween(source.opacity, 0.70, 0.1, (p) => source.opacity = p, k.easings.easeOutQuad);
 
     arrangeWord(k);
+    checkWord(k);
+}
+
+// asks the server if the word is real
+async function checkWord(k) {
+    const getWord = () => wordHexes.map((hex) => hex.letter).join("");
+    const word = getWord();
+    if (word.length === 0) {
+        k.destroyAll("deliver");
+        return;
+    }
+
+    const res = await fetch(`/api/word/${word}`);
+    const { valid } = await res.json();
+    // check if answer is still relevant
+    if (word !== getWord()) return;
+    if (!valid) {
+        k.destroyAll("deliver");
+    } else if (k.get("deliver").length === 0) {
+        // only pop in if it isn't already showing from the last word
+        addDeliverButton(k);
+    }
+}
+
+function addDeliverButton(k) {
+    const deliver = addTextBox(k, "Deliver to Queen", 70, colorPallete.red, colorPallete.white, { size: 16 }, [
+        k.area(),
+        k.outline(2, k.Color.fromHex(colorPallete.white)),
+        "deliver"
+    ])
+    deliver.onClick(() => {
+        deliver.tween(k.vec2(1.2, 0.8), k.vec2(1), 0.3, (s) => deliver.scale = s, k.easings.easeOutElastic);
+        // tally score / animate bees / change to next level 
+    });
+    return deliver
 }
 
 // moves every letter to its spot, newHex pops in, the rest slide

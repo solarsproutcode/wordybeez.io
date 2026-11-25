@@ -5,7 +5,7 @@ import { createShuffledBag } from "./src/objects/letters.js";
 import wordList from "word-list-json";
 
 const app = express();
-// all valid words, loaded once. a Set makes each lookup instant instead of searching 275k words
+// all valid words, loaded once
 const validWords = new Set(wordList);
 const redis = await createClient({ url: process.env.REDIS_URL }).connect();
 
