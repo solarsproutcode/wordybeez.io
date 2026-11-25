@@ -15,7 +15,7 @@ export function createBag() {
     return bag;
 }
 
-// a full bag in random order (Fisher-Yates shuffle, every order equally likely)
+// Fisher-Yates shuffle
 export function createShuffledBag() {
     const bag = createBag();
     for (let i = bag.length - 1; i > 0; i--) {

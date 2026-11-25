@@ -2,8 +2,11 @@ import "dotenv/config";
 import express from "express";
 import { createClient } from "redis";
 import { createShuffledBag } from "./src/objects/letters.js";
+import wordList from "word-list-json";
 
 const app = express();
+// all valid words, loaded once. a Set makes each lookup instant instead of searching 275k words
+const validWords = new Set(wordList);
 const redis = await createClient({ url: process.env.REDIS_URL }).connect();
 
 function nextMidnightUTC() {
@@ -35,6 +38,11 @@ app.get("/api/letters", async (req, res) => {
         letters = await redis.get("dailyLetters");
     }
     res.json({ letters: letters.split("") });
+});
+
+// is this a real word? the list is all lowercase
+app.get("/api/word/:word", (req, res) => {
+    res.json({ valid: validWords.has(req.params.word.toLowerCase()) });
 });
 
 app.use(express.static("dist"));

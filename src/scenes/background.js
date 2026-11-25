@@ -1,12 +1,11 @@
 import { colorPallete } from "../config";
 
 export function addBackground(k) {
-    // clear any background objects carried over from another scene so they aren't duplicated
     k.destroyAll("background");
     k.add([
         k.sprite("background"),
         k.pos(0, 0),
-        k.stay(),
+        k.stay(), // stay is so new scenes don't clear this
         "background",
     ]);
     k.add([

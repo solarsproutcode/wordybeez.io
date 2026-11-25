@@ -1,11 +1,8 @@
 import { colorPallete } from "../config";
-
-// hexagons overlap so no blank space between
-const OVERLAP_X = 2; // diagonal tiles
-const OVERLAP_Y = 0; // top and bottom tiles
+import { addToWord } from "./word";
 
 // center tile pop
-const POP_GROW_TIME = 0.2;
+export const POP_GROW_TIME = 0.2;
 
 // the tiles that fly in
 const FLY_START = POP_GROW_TIME * 0.5; // when the first tile starts (0 = with the center pop)
@@ -29,12 +26,14 @@ export async function addInitHoneycomb(k, centerPos) {
     const centerHex = addHexagon(k, centerPos, 0);
     k.tween(0, 1, POP_GROW_TIME, (s) => centerHex.scale = k.vec2(s), k.easings.easeOutBack);
 
-    const w = centerHex.width - OVERLAP_X;
-    const h = centerHex.height - OVERLAP_Y;
+    const w = centerHex.width
+    const h = centerHex.height
+    centerPos = snapToPixels(k, centerPos, w, h);
+    centerHex.pos = centerPos;
     // first 6 tiles
     for (let i = 0; i < 6; i++) {
         const offset = getTileOffset(k, tileNum, w, h);
-        const endPos = centerPos.add(offset);
+        const endPos = snapToPixels(k, centerPos.add(offset), w, h);
         const startPos = centerPos.add(offset.unit().scale(k.width()));
         const tile = addHexagon(k, startPos);
         flyIn(k, tile, endPos, FLY_START + (tileNum - 1) * FLY_STAGGER);
@@ -91,16 +90,58 @@ function addHexagon(k, pos, scale = 1) {
         k.pos(pos),
         k.anchor("center"),
         k.scale(scale),
+        k.opacity(0.70),
+        k.area(),
         "hexagon",
-        { letter },
+        { letter, clicked: false },
     ]);
-    // a child of the hexagon, so it moves, scales and hides with it
-    hex.add([
-        k.text(letter, { size: 12, font: "yoster" }),
-        k.anchor("center"),
-        k.color(colorPallete.darkBrown),
-    ]);
+    const label = addLetter(k, hex, letter, colorPallete.darkBrown);
+
+    hex.onClick(() => {
+        if (hex.clicked) return;
+        hex.clicked = true;
+        k.tween(hex.opacity, 1, 0.1, (p) => hex.opacity = p, k.easings.easeOutBack);
+        k.tween(k.vec2(1.2), k.vec2(1), 0.3, (s) => hex.scale = s, k.easings.easeOutElastic);
+        addToWord(k, hex);
+    })
+
     return hex;
+}
+
+export function addLetter(k, hex, letter, color) {
+    // fake outline: copies of the letter shifted 1 pixel each way
+    const outlines = [[-1, -1], [1, -1], [-1, 1], [1, 1]].map(([dx, dy]) => ({
+        shift: k.vec2(dx, dy),
+        obj: addLetterText(k, hex, letter, colorPallete.lightYellow),
+    }));
+
+    const label = addLetterText(k, hex, letter, color);
+    // push label to relative center depending on letter w/h
+    const spareX = (hex.width - label.width) / 2;
+    const spareY = (hex.height - label.height) / 2;
+    label.pos = k.vec2(Math.floor(spareX) - spareX, Math.ceil(spareY) - spareY);
+    for (const { shift, obj } of outlines) {
+        obj.pos = label.pos.add(shift);
+    }
+    return label
+}
+
+// one plain copy of the letter, used for both the outline copies and the real letter
+function addLetterText(k, hex, letter, color) {
+    return hex.add([
+        k.text(letter, { size: 16, font: "yoster" }),
+        k.pos(0, 0),
+        k.anchor("center"),
+        k.color(color),
+    ]);
+}
+
+// moves a center position so the sprite's edges land on whole pixels
+function snapToPixels(k, pos, w, h) {
+    return k.vec2(
+        Math.round(pos.x - w / 2) + w / 2,
+        Math.round(pos.y - h / 2) + h / 2,
+    );
 }
 
 function flyIn(k, obj, target, delay) {
