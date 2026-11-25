@@ -5,20 +5,18 @@ import { addBackground } from "./background"
 
 export function title(k) {
     return k.scene("title", () => {
-        let fadeOut = false;
-        
-        const onStartFn = () => {
-            if (fadeOut) return;
-            fadeOut = true;
-            slideOutTitle(k, () => k.go("game"));
-        };
-
         addBackground(k)
         k.add([
             k.sprite("picnic"),
             k.pos(k.width()/2, 220),
             k.anchor("center"),
         ]);
+        let fadeOut = false;
+        const onStartFn = () => {
+            if (fadeOut) return;
+            fadeOut = true;
+            slideOutTitle(k, () => k.go("game"));
+        };
         addPowerups(k, {
             onSelect: (startScale) => addStartButton(k, startScale, onStartFn),
             sceneTransition: () => fadeOut,

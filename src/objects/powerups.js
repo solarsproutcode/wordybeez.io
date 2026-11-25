@@ -10,7 +10,7 @@ const powerups = {
             },
             2: {
                 title: "Stik tu et",
-                description: "Allow phonetic spellings of words to count the same as actual spellings"
+                description: "Allow phonetic spellings of words"
             },
             3: {
                 title: "Double Dip",
@@ -68,7 +68,6 @@ const powerups = {
         }
     },
 }
-const selectText = "Choose a powerup to begin"
 let dailyPotAvailable = false;
 fetch("/api/powerup")
     .then((res) => res.json())
@@ -83,7 +82,7 @@ export function addPowerups(k, { onSelect = () => {}, sceneTransition = () => fa
         jar: dailyPotAvailable ? k.randi(1, 5) : k.randi(1, 3)
     }
     let selectedItem = null;
-    const addSelectPrompt = () => addTextBox(k, selectText, 220, colorPallete.red, colorPallete.white, { width: 100 });
+    const addSelectPrompt = () => addTextBox(k, "Choose a powerup to begin", 220, colorPallete.red, colorPallete.white, { width: 100 });
     addSelectPrompt();
     for (const [i, [name, val]] of Object.entries(powerups).entries()) {
         if (!k.getSprite(name)) {
