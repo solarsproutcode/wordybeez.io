@@ -35,11 +35,10 @@ function tallyScore(k, wordHexes) {
         k.timer(), // for flyBee
         k.z(2), // above the honeycomb tiles
     ]);
-    // the bee visits the honeycomb tile each letter came from
+    // the bee visits each tile
     flyBee(k, bee, wordHexes[0].sourceHex.pos, BEE_LEAD_IN);
 
     wordHexes.forEach((hex, i) => {
-        // the bee reaches this letter
         k.wait(BEE_LEAD_IN + i * TALLY_STAGGER, () => {
             const points = LETTER_POINTS[hex.letter];
             addPlusPoints(k, hex, points);

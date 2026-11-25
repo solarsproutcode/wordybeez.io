@@ -27,7 +27,7 @@ export function addBackground(k) {
     addBee(k)
 }
 
-// each stop on the bee's path: where it flies to, and how long that hop takes
+// each stop on the bee's path
 const BEE_START = [-6, 60];
 const BEE_PATH = [
     { x: 50, y: 60, time: 1.6 },

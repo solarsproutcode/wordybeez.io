@@ -82,7 +82,10 @@ export function addPowerups(k, { onSelect = () => {}, sceneTransition = () => fa
         jar: dailyPotAvailable ? k.randi(1, 5) : k.randi(1, 3)
     }
     let selectedItem = null;
-    const addSelectPrompt = () => addTextBox(k, "Choose a powerup to begin", 220, colorPallete.red, colorPallete.white, { width: 100 });
+    const addSelectPrompt = () => addTextBox(k, "Her majesty requests you choose, before the work can begin", 220, colorPallete.red, colorPallete.white, { width: 100 }, [
+        k.outline(2, k.Color.fromHex(colorPallete.white)),
+        "selected"
+    ]);
     addSelectPrompt();
     for (const [i, [name, val]] of Object.entries(powerups).entries()) {
         if (!k.getSprite(name)) {
@@ -115,9 +118,9 @@ export function addPowerups(k, { onSelect = () => {}, sceneTransition = () => fa
             setBobbing(k, item, false);
             selectedItem = item;
             addHighlight(k, item);
-            const title = addTextBox(k, text.title, 180, colorPallete.lightYellow, colorPallete.darkBrown, { size: 16 });
+            const title = addTextBox(k, text.title, 180, colorPallete.lightYellow, colorPallete.darkBrown, { size: 16 }, ["selected"]);
             // wrap description text
-            const description = addTextBox(k, text.description, 0, colorPallete.lightYellow, colorPallete.darkBrown, { width: 100 })
+            const description = addTextBox(k, text.description, 0, colorPallete.lightYellow, colorPallete.darkBrown, { width: 100 }, ["selected"])
             // description is always 4 pixels below title
             description.pos.y = title.pos.y + (title.height / 2) + (description.height / 2) + 4
             onSelect(startScale);

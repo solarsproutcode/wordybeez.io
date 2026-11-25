@@ -51,8 +51,7 @@ export function addTextBox(k, text, y, color1, color2, textOptions = {}, extraCo
         k.color(color1),
         k.scale(startScale),
         k.timer(),
-        "selected",
-        ...extraComps
+        ...extraComps // extra components and tags, e.g. k.area(), "selected"
     ]);
     const label = box.add([
         k.text(text, {
