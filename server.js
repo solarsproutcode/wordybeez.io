@@ -1,7 +1,7 @@
 import "dotenv/config";
 import express from "express";
 import { createClient } from "redis";
-import { createShuffledBag } from "./src/letters.js";
+import { createShuffledBag } from "./src/objects/letters.js";
 
 const app = express();
 const redis = await createClient({ url: process.env.REDIS_URL }).connect();
@@ -27,13 +27,11 @@ app.post("/api/powerup", async (req, res) => {
 app.get("/api/letters", async (req, res) => {
     let letters = await redis.get("dailyLetters");
     if (!letters) {
-        // first request of the day: shuffle and save until midnight
-        // NX = don't overwrite, in case another request saved one at the same moment
+        // first request of the day
         await redis.set("dailyLetters", createShuffledBag().join(""), {
             NX: true,
             EXAT: nextMidnightUTC(),
         });
-        // read back whichever order won, so both requests get the same letters
         letters = await redis.get("dailyLetters");
     }
     res.json({ letters: letters.split("") });
